@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Not a Fight Club Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/5d492f7abb.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kumar+One&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1 id="logo">Not a Fight Club</h1>
+        <ul id="nav">
+            <li>
+                <a href="#game" class="nav-button fa-solid fa-house"></a>
+            </li>
+            <li>
+                <a href="#profile" class="nav-button fa-solid fa-user"></a>
+            </li>
+            <li>
+                <a href="#stats" class="nav-button fa-solid fa-chart-line"></a>
+            </li>
+        </ul>
+    </header>
+    <main>
+        <div id="main-screen" class="screen">
+            <button id="game-button" class="main-button">Start Game</button>
+            <div class="bg-img left"></div>
+            <div class="bg-img right"></div>
+        </div>
+        <div id="choose-screen" class="screen hidden">
+            <h2 class="screen-title">Choose your fighter</h2>
+            <div id="left-arrow" class="control-button fa-solid fa-arrow-left"></div>
+            <div id="right-arrow" class="control-button fa-solid fa-arrow-right"></div>
+            <div id="fighters">
+                <div class="fighter" id="serega">
+                    <div class="fighter-stats"></div>
+                    <img src="images/character-serega.svg" alt="Serega" class="fighter-image">
+                    <div class="name-and-health">
+                        <div class="fighter-name">Serega</div>
+                        <div class="fighter-health"></div>
+                    </div>
+                    <div class="fighter-description">You can call him a drunk master if he'll give you an option to speak.</div>
+                </div>
+                <div class="fighter" id="bruhas">
+                    <div class="fighter-stats"></div>
+                    <img src="images/character-bruhas.svg" alt="Bruhas" class="fighter-image">
+                    <div class="name-and-health">
+                        <div class="fighter-name">Bruhas</div>
+                        <div class="fighter-health"></div>
+                    </div>
+                    <div class="fighter-description">Infernal creature with a penchant for chaos and destruction looking like a family of angry monkeys.</div>
+                </div>
+                <div class="fighter" id="giva">
+                    <div class="fighter-stats"></div>
+                    <img src="images/character-giva.svg" alt="Giva" class="fighter-image">
+                    <div class="name-and-health">
+                        <div class="fighter-name">Giva</div>
+                        <div class="fighter-health"></div>
+                    </div>
+                    <div class="fighter-description">Was a king's guard that ran away from his duties and took some of the king's money.</div>
+                </div>
+                <div class="fighter" id="nato">
+                    <div class="fighter-stats"></div>
+                    <img src="images/character-nato.svg" alt="Nato" class="fighter-image">
+                    <div class="name-and-health">
+                        <div class="fighter-name">Nato</div>
+                        <div class="fighter-health"></div>
+                    </div>
+                    <div class="fighter-description">A former street fighter with a rough past. Known for his brute strength.</div>
+
+                </div>
+                <div class="fighter" id="pobo">
+                    <div class="fighter-stats"></div>
+                    <img src="images/character-pobo.svg" alt="Pobo" class="fighter-image">
+                    <div class="name-and-health">
+                        <div class="fighter-name">Pobo</div>
+                        <div class="fighter-health"></div>
+                    </div>
+                    <div class="fighter-description">A cunning strategist who relies on tricks and traps to win battles.</div>
+
+                </div>
+                <div class="fighter" id="plek">
+                    <div class="fighter-stats"></div>
+                    <img src="images/character-plek.svg" alt="Plek" class="fighter-image">
+                    <div class="name-and-health">
+                        <div class="fighter-name">Plek</div>
+                        <div class="fighter-health"></div>
+                    </div>
+                    <div class="fighter-description">A mysterious warrior with unmatched agility and speed.</div>
+                </div>
+            </div>
+            <button id="choose-button" class="main-button">Choose!</button>
+        </div>
+        <div id="game-screen" class="screen hidden">
+            <div id="game-area">
+                <div class="fighter" id="left-fighter">
+                    <img src="" alt="Left Fighter" class="fighter-image">
+                    <p class="fighter-name"></p>
+                    <div class="fighter-health">
+                        <progress class="health-bar" value="" max=""></progress>
+                        <div class="health-text"></div>
+                    </div>
+                </div>
+                <div id="fight-controls">
+                    <form id="actions-selector">
+                        <fieldset id="defend-zones">
+                            <input type="checkbox" id="defend-head" name="defend" value="head">
+                            <label for="defend-head">Head</label>
+                            <input type="checkbox" id="defend-body" name="defend" value="body">
+                            <label for="defend-body">Body</label>
+                            <input type="checkbox" id="defend-neck" name="defend" value="neck">
+                            <label for="defend-neck">Neck</label>
+                            <input type="checkbox" id="defend-stomach" name="defend" value="stomach">
+                            <label for="defend-stomach">Stomach</label>
+                            <input type="checkbox" id="defend-legs" name="defend" value="legs">
+                            <label for="defend-legs">Legs</label>
+                            <p class="fight-instructions">2 zones to defend</p>
+                        </fieldset>
+                        <fieldset id="attack-zones">
+                            <input type="radio" id="attack-head" name="attack" value="head">
+                            <label for="attack-head">Head</label>
+                            <input type="radio" id="attack-body" name="attack" value="body">
+                            <label for="attack-body">Body</label>
+                            <input type="radio" id="attack-neck" name="attack" value="neck">
+                            <label for="attack-neck">Neck</label>
+                            <input type="radio" id="attack-stomach" name="attack" value="stomach">
+                            <label for="attack-stomach">Stomach</label>
+                            <input type="radio" id="attack-legs" name="attack" value="legs">
+                            <label for="attack-legs">Legs</label>
+                            <p class="fight-instructions">1 zone to attack</p>
+                        </fieldset>
+                    </form>
+                    <button id="attack-button" class="main-button" disabled>Attack!</button>
+                    <div id="fight-log"></div>
+                </div>
+                <div class="fighter" id="right-fighter">
+                    <img src="" alt="Right Fighter" class="fighter-image">
+                    <p class="fighter-name"></p>
+                    <div class="fighter-health">
+                        <progress class="health-bar" value="" max=""></progress>
+                        <div class="health-text"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="">
+        <p id="copyright">&copy; Created by Egor Artemov just for fun</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
