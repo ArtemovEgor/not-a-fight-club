@@ -1,4 +1,4 @@
-const mainButton = document.getElementById("game-button");
+const startButton = document.getElementById("game-button");
 const mainScreen = document.getElementById("main-screen");
 const gameScreen = document.getElementById("game-screen");
 const chooseScreen = document.getElementById("choose-screen");
@@ -16,10 +16,29 @@ const defendZones = document.querySelectorAll("#defend-zones input");
 const attackButton = document.getElementById("attack-button");
 const actionsSelector = document.getElementById("actions-selector");
 const fightLog = document.getElementById("fight-log");
+const playerNameInput = document.getElementById("player-name");
+const screens = document.querySelectorAll(".screen");
+const chooseFighters = document.querySelectorAll('#choose-screen .fighter');
+const secretFighters = document.querySelectorAll('#choose-screen .fighter.secret');
+const bruhas = document.getElementById("bruhas");
+const serega = document.getElementById("serega");
+const homeButton = document.getElementById("home-button");
+const profileButton = document.getElementById("profile-button");
+const statsButton = document.getElementById("stats-button");
+const navButtons = document.getElementById("nav");
+const profileScreen = document.getElementById("profile-screen");
+const saveProfileButton = document.getElementById("save-profile");
+const statsScreen = document.getElementById("stats-screen");
+const totalGames = document.getElementById("total-games");
+const totalWins = document.getElementById("total-wins");
+const totalLosses = document.getElementById("total-losses");
+const winRate = document.getElementById("win-rate");
+const changePlayerName = document.getElementById("change-player-name");
 
 const characters = {
     giva: {
         name: "Giva",
+        id: "giva",
         wins: 0,
         losses: 0,
         health: 100,
@@ -29,6 +48,7 @@ const characters = {
     },
     nato: {
         name: "Nato",
+        id: "nato",
         wins: 0,
         losses: 0,
         health: 95,
@@ -38,6 +58,7 @@ const characters = {
     },
     pobo: {
         name: "Pobo",
+        id: "pobo",
         wins: 0,
         losses: 0,
         health: 110,
@@ -47,6 +68,7 @@ const characters = {
     },
     plek: {
         name: "Plek",
+        id: "plek",
         wins: 0,
         losses: 0,
         health: 90,
@@ -56,6 +78,7 @@ const characters = {
     },
     serega: {
         name: "Serega",
+        id: "serega",
         wins: 0,
         losses: 0,
         health: 105,
@@ -65,6 +88,7 @@ const characters = {
     },
     bruhas: {
         name: "Bruhas",
+        id: "bruhas",
         wins: 0,
         losses: 0,
         health: 100,
@@ -77,6 +101,7 @@ const characters = {
 const enemies = [
     {
         name: "Rat",
+        id: "rat",
         health: 70,
         damage: 12,
         defense_modifiers: { head: 1.0, body: 1.0, neck: 1.0, stomach: 1.0, legs: 1.0 },
@@ -86,6 +111,7 @@ const enemies = [
     },
     {
         name: "Skeleton",
+        id: "skeleton",
         health: 75,
         damage: 15,
         defense_modifiers: { head: 0.9, body: 1.0, neck: 1.1, stomach: 1.0, legs: 1.0 },
@@ -95,6 +121,7 @@ const enemies = [
     },
     {
         name: "Spider",
+        id: "spider",
         health: 80,
         damage: 15,
         defense_modifiers: { head: 1.0, body: 1.1, neck: 0.9, stomach: 1.0, legs: 1.0 },
@@ -104,6 +131,7 @@ const enemies = [
     },
     {
         name: "Wolf",
+        id: "wolf",
         health: 85,
         damage: 17,
         defense_modifiers: { head: 1.1, body: 1.0, neck: 1.0, stomach: 0.95, legs: 1.0 },
@@ -113,6 +141,7 @@ const enemies = [
     },
     {
         name: "Goblin",
+        id: "goblin",
         health: 90,
         damage: 18,
         defense_modifiers: { head: 1.0, body: 1.0, neck: 1.0, stomach: 1.1, legs: 0.9 },
@@ -122,6 +151,7 @@ const enemies = [
     },
     {
         name: "Troll",
+        id: "troll",
         health: 120,
         damage: 20,
         defense_modifiers: { head: 0.9, body: 1.0, neck: 1.0, stomach: 1.0, legs: 1.1 },
@@ -131,6 +161,7 @@ const enemies = [
     },
     {
         name: "Ogre",
+        id: "ogre",
         health: 130,
         damage: 22,
         defense_modifiers: { head: 1.0, body: 1.0, neck: 1.0, stomach: 0.9, legs: 1.1 },
@@ -140,6 +171,7 @@ const enemies = [
     },
     {
         name: "Orc",
+        id: "orc",
         health: 100,
         damage: 19,
         defense_modifiers: { head: 1.0, body: 1.0, neck: 1.0, stomach: 1.0, legs: 1.0 },
@@ -149,6 +181,7 @@ const enemies = [
     },
     {
         name: "Wraith",
+        id: "wraith",
         health: 95,
         damage: 21,
         defense_modifiers: { head: 0.95, body: 1.1, neck: 1.0, stomach: 1.0, legs: 1.0 },
@@ -158,6 +191,7 @@ const enemies = [
     },
     {
         name: "Dragonling",
+        id: "dragonling",
         health: 140,
         damage: 24,
         defense_modifiers: { head: 1.0, body: 0.9, neck: 1.0, stomach: 1.1, legs: 1.0 },
@@ -171,65 +205,293 @@ const zones = [
     "head", "body", "neck", "stomach", "legs"
 ];
 
-const userData = {
-    name: "Egor",
-    enemyCounter: 0
-};
-
 const currentFightData = {
-    user: userData,
-    opponentFighter: enemies[userData.enemyCounter]
+    selectedFighter: null,
+    opponentFighter: null,
+    playerHealth: 0,
+    enemyHealth: 0
 };
 
-mainButton.addEventListener("click", () => {
-    mainScreen.classList.toggle("hidden");
-    chooseScreen.classList.toggle("hidden");
-    footer.classList.add("hidden");
+/* The user's data is stored in localStorage */
+const userData = JSON.parse(localStorage.getItem("userData")) || {
+    name: "",
+    enemyCounter: 0,
+    fights: 0,
+    wins: 0,
+    characterWins: {
+        "serega": 0,
+        "bruhas": 0,
+        "giva": 0,
+        "nato": 0,
+        "pobo": 0,
+        "plek": 0
+    },
+    characterLosses: {
+        "serega": 0,
+        "bruhas": 0,
+        "giva": 0,
+        "nato": 0,
+        "pobo": 0,
+        "plek": 0
+    },
+    currentScreen: mainScreen.id,
+    currentFight: {
+        selectedFighterId: currentFightData.selectedFighter?.id || null,
+        opponentFighterId: currentFightData.opponentFighter?.id || null,
+        playerHealth: currentFightData.playerHealth,
+        enemyHealth: currentFightData.enemyHealth,
+        fightLog: []
+    }
+};
+
+function updateUserData() {
+    localStorage.setItem("userData", JSON.stringify(userData));
+}
+
+/*
+    * Displaying fighters on the Choose Screen
+    * - Showing fighter images, health and stats (wins/losses)
+    * - Hiding/showing secret fighters based on user progress
+*/
+
+function renderFightersOnChooseScreen() {
+    chooseFighters.forEach(fighterElem => {
+        const fighterId = fighterElem.id;
+
+        // Update health
+        fighterElem.querySelector('.fighter-health').innerHTML = `
+            <p class="health"><span class="red fa-solid fa-heart"></span> ${characters[fighterId].health}</p>
+        `;
+
+        // Update stats
+        fighterElem.querySelector('.fighter-stats').innerHTML = `
+            <p class="green">Wins: ${userData.characterWins[fighterId]}</p>
+            <p class="red">Loses: ${userData.characterLosses[fighterId]}</p>
+        `;
+
+        // Check secret status and update secret fighters images
+        let imgSrc = `images/character-${fighterId}.svg`;
+        let isSecret = false;
+
+        if (userData.fights < 2 && [...secretFighters].some(f => f === fighterElem)) {
+            imgSrc = "images/character-secret.svg";
+            isSecret = true;
+        } else if (userData.fights > 2 && userData.wins < 5 && fighterId === "bruhas") {
+            imgSrc = "images/character-secret.svg";
+            isSecret = true;
+        }
+
+        fighterElem.querySelector(".fighter-image").src = imgSrc;
+
+        if (isSecret) {
+            fighterElem.classList.add("secret");
+        } else {
+            fighterElem.classList.remove("secret");
+        }
+    });
+}
+
+/*
+    * Handling the carousel on the choose screen
+*/
+
+function scrollSlider(direction) {
+    const currentlySelectedFighter = document.querySelector(".fighter.current");
+    const fighters = document.querySelectorAll("#choose-screen .fighter");
+
+    currentlySelectedFighter.classList.remove("current");
+    const nextFighter = direction === 'left'
+        ? currentlySelectedFighter.previousElementSibling || currentlySelectedFighter
+        : currentlySelectedFighter.nextElementSibling || currentlySelectedFighter;
+
+    if (direction === 'left') {
+        fightersContainer.prepend(fighters[fighters.length - 1]);
+    } else if (direction === 'right') {
+        fightersContainer.append(fighters[0]);
+    }
+    nextFighter.classList.add("current");
+    
+    const seregaNotice = document.querySelector("#serega-notice");
+    const bruhasNotice = document.querySelector("#bruhas-notice");
+
+    seregaNotice.close();
+    bruhasNotice.close();
+
+    if (nextFighter.classList.contains("secret")) {
+        chooseButton.disabled = true;
+        if (nextFighter.id === "serega") {
+            seregaNotice.showModal();
+        } else if (nextFighter.id === "bruhas") {
+            bruhasNotice.showModal();
+        }
+    } else {
+        chooseButton.disabled = false;
+    }
+}
+
+/*
+    * Changing app screens
+    * - Showing the active screen
+    * - Showing/hiding nav buttons
+    * - Saving the current screen to storage
+    * - Updating nav button styles
+*/
+
+function setActiveScreen(screen) {
+    screens.forEach(s => s.classList.add("hidden"));
+    screen.classList.remove("hidden");
+}
+
+function populatePlayerName() {
+    playerNameInput.value = userData.name;
+    changePlayerName.value = userData.name;
+    startButton.disabled = !userData.name;
+}
+
+function updateNavForScreen(screen) {
+    navButtons.classList.remove("hidden");
+    [homeButton, profileButton, statsButton].forEach(btn => btn.classList.remove("current"));
+
+    const screenConfig = {
+        [mainScreen.id]: () => {
+            populatePlayerName();
+        },
+        [chooseScreen.id]: () => {
+            renderFightersOnChooseScreen();
+            fightersContainer.scrollLeft = 110;
+            homeButton.classList.add("current");
+        },
+        [profileScreen.id]: () => {
+            populatePlayerName();
+            profileButton.classList.add("current");
+        },
+        [statsScreen.id]: () => {
+            statsButton.classList.add("current");
+        },
+        [gameScreen.id]: () => {
+            loadFightData();
+            navButtons.classList.add("hidden");
+        }
+    }
+
+    screenConfig[screen.id]();
+}
+
+function saveCurrentScreen(screen) {
+    userData.currentScreen = screen.id;
+    updateUserData();
+}
+
+function showScreen(screen) {
+    setActiveScreen(screen);
+    updateNavForScreen(screen);
+    saveCurrentScreen(screen);
+}
+
+// Event listners on navigation buttons and secondary pages
+
+startButton.addEventListener("click", () => {
+    userData.name = playerNameInput.value.trim();
+    showScreen(chooseScreen);
+});
+
+homeButton.addEventListener("click", () => {
+    showScreen(chooseScreen);
+});
+
+profileButton.addEventListener("click", () => {
+    showScreen(profileScreen);
+});
+
+function renderStats() { 
+    totalGames.innerText = userData.fights;
+    totalWins.innerText = userData.wins;
+    totalLosses.innerText = userData.fights - userData.wins;
+    winRate.innerText = userData.fights > 0 ? `${Math.round((userData.wins / userData.fights) * 100)}%` : "0%";
+}
+
+statsButton.addEventListener("click", () => {
+    showScreen(statsScreen);
+    renderStats();
+});
+
+playerNameInput.addEventListener("input", (event) => {
+    const playerName = event.target.value.trim();
+    startButton.disabled = playerName === "";
+});
+
+saveProfileButton.addEventListener("click", () => {
+    const newName = changePlayerName.value.trim();
+    if (newName) {
+        userData.name = newName;
+        updateUserData();
+        showScreen(chooseScreen);
+    }
 });
 
 window.addEventListener("DOMContentLoaded", () => {
-    fightersContainer.scrollLeft = 110;
-    document.querySelectorAll('#choose-screen .fighter').forEach(fighterElem => {
-        const fighterId = fighterElem.id;
-        const fighter = characters[fighterId];
-        fighterElem.querySelector('.fighter-stats').innerHTML = `
-            <p class="green">Wins: ${fighter.wins}</p>
-            <p class="red">Loses: ${fighter.losses}</p>
-        `;
-        fighterElem.querySelector('.fighter-health').innerHTML = `
-            <p class="health"><span class="red fa-solid fa-heart"></span> ${fighter.health}</p>
-        `;
-    });
+    showScreen(document.getElementById(userData.currentScreen));
 });
-
-function scrollSlider(direction) {
-    if (direction === 'left') {
-        const lastFighter = document.querySelector(".fighter:last-child");
-        fightersContainer.prepend(lastFighter);
-    } else if (direction === 'right') {
-        const firstFighter = document.querySelector(".fighter:first-child");
-        fightersContainer.append(firstFighter);
-    }
-}
 
 leftArrow.addEventListener("click", () => scrollSlider('left'));
 rightArrow.addEventListener("click", () => scrollSlider('right'));
 
+// Fight logic
+
+function syncFightToUserData() {
+    userData.currentFight.selectedFighterId = currentFightData.selectedFighter?.id || null;
+    userData.currentFight.opponentFighterId = currentFightData.opponentFighter?.id || null;
+    userData.currentFight.playerHealth = currentFightData.playerHealth;
+    userData.currentFight.enemyHealth = currentFightData.enemyHealth;
+}
+
+function loadFightData() {
+    if (!userData.currentFight.selectedFighterId || !userData.currentFight.opponentFighterId) {
+        return;
+    }
+
+    currentFightData.selectedFighter = characters[userData.currentFight.selectedFighterId];
+    currentFightData.playerHealth = userData.currentFight.playerHealth;
+    currentFightData.opponentFighter = enemies[userData.enemyCounter];
+    currentFightData.enemyHealth = userData.currentFight.enemyHealth;
+
+    fighterLeft.querySelector(".fighter-image").src = `images/character-${currentFightData.selectedFighter.id}.svg`;
+    fighterLeft.querySelector(".fighter-name").innerText = `${userData.name} — ${currentFightData.selectedFighter.name}`;
+    fighterLeft.querySelector(".health-bar").max = currentFightData.selectedFighter.health;
+    fighterLeft.querySelector(".health-bar").value = currentFightData.playerHealth;
+
+    fighterRight.querySelector(".fighter-image").src = `images/enemy-${currentFightData.opponentFighter.id}.svg`;
+    fighterRight.querySelector(".fighter-name").innerText = `Enemy — ${currentFightData.opponentFighter.name}`;
+    fighterRight.querySelector(".health-bar").max = currentFightData.opponentFighter.health;
+    fighterRight.querySelector(".health-bar").value = currentFightData.enemyHealth;
+    if (userData.currentFight.fightLog.length > 0) {
+        userData.currentFight.fightLog.forEach(entry => {
+            writeFightLog(entry);
+        });
+    }
+
+    updateHealth();
+}
+
 chooseButton.addEventListener("click", () => {
-    chooseScreen.classList.toggle("hidden");
-    gameScreen.classList.toggle("hidden");
+    showScreen(gameScreen);
     currentFightData.selectedFighter = characters[document.querySelector(".fighter:nth-child(3)").id];
-    fighterLeft.querySelector(".fighter-image").src = `images/character-${currentFightData.selectedFighter.name}.svg`;
+    currentFightData.playerHealth = characters[currentFightData.selectedFighter.id].health;
+    fighterLeft.querySelector(".fighter-image").src = `images/character-${currentFightData.selectedFighter.id}.svg`;
     fighterLeft.querySelector(".fighter-name").innerText = `${userData.name} — ${currentFightData.selectedFighter.name}`;
     fighterLeft.querySelector(".health-bar").max = currentFightData.selectedFighter.health;
 
-    const opponentFighter = currentFightData.opponentFighter;
-    fighterRight.querySelector(".fighter-image").src = `images/enemy-${opponentFighter.name.toLowerCase()}.svg`;
-    fighterRight.querySelector(".fighter-name").innerText = `Enemy — ${opponentFighter.name}`;
-    fighterRight.querySelector(".health-bar").max = opponentFighter.health;
+    currentFightData.opponentFighter = enemies[userData.enemyCounter];
+    currentFightData.enemyHealth = currentFightData.opponentFighter.health;
+    fighterRight.querySelector(".fighter-image").src = `images/enemy-${currentFightData.opponentFighter.id}.svg`;
+    fighterRight.querySelector(".fighter-name").innerText = `Enemy — ${currentFightData.opponentFighter.name}`;
+    fighterRight.querySelector(".health-bar").max = currentFightData.enemyHealth;
     updateHealth();
-    writeFightLog(`${userData.name} chose ${currentFightData.selectedFighter.name} as their fighter.`);
-    writeFightLog(`The battle begins between ${currentFightData.selectedFighter.name} and ${currentFightData.opponentFighter.name}.`);
+    writeFightLog(`<span class="highlight">${userData.name}</span> chose <span class="highlight">${currentFightData.selectedFighter.name}</span> as their fighter.`);
+    writeFightLog(`The battle begins between <span class="highlight">${currentFightData.selectedFighter.name}</span> and <span class="highlight">${currentFightData.opponentFighter.name}</span>.`);
+    syncFightToUserData();
+    updateUserData();
+    resetTurn();
 });
 
 defendZones.forEach(zone => {
@@ -247,50 +509,86 @@ defendZones.forEach(zone => {
     });
 });
 
+attackZones.forEach(zone => {
+    zone.addEventListener("change", () => {
+        const selectedZones = Array.from(attackZones).filter(zone => zone.checked).map(zone => zone.value);
+        if (selectedZones.length === 1) {
+            attackZones.forEach(zone => {
+                zone.disabled = !zone.checked;
+            });
+        } else {
+            attackZones.forEach(zone => {
+                zone.disabled = false;
+            });
+        }
+    });
+});
+
 actionsSelector.addEventListener("change", () => {
     attackButton.disabled = !Array.from(attackZones).some(zone => zone.checked) || Array.from(defendZones).filter(zone => zone.checked).length !== 2;
 });
 
+function isCritical() {
+    return Math.random() < 0.05; // 5% chance for a critical hit
+}
+
 function enemyTurn() {
-    const enemyAttackZone = zones[Math.floor(Math.random() * zones.length)];
-    const defendZone1 = zones[Math.floor(Math.random() * zones.length)];
-    let defendZone2;
-    do {
-        defendZone2 = zones[Math.floor(Math.random() * zones.length)];
-    } while (defendZone1 === defendZone2);
-    const enemyDefendZones = [defendZone1, defendZone2];
+    const attacksPerRound = currentFightData.opponentFighter.attacks_per_round;
+    const defensesPerRound = currentFightData.opponentFighter.defenses_per_round;
+
+    const attackZones = [];
+    for (let i = 0; i < attacksPerRound; i++) {
+        let attackZone;
+        do {
+            attackZone = zones[Math.floor(Math.random() * zones.length)];
+        } while (attackZones.includes(attackZone));
+        attackZones.push(attackZone);
+    }
+    const defendZones = [];
+    for (let i = 0; i < defensesPerRound; i++) {
+        let defendZone;
+        do {
+            defendZone = zones[Math.floor(Math.random() * zones.length)];
+        } while (defendZones.includes(defendZone));
+        defendZones.push(defendZone);
+    }
     return {
-        attack: enemyAttackZone,
-        defend: enemyDefendZones
+        attack: attackZones,
+        defend: defendZones
     };
 }
 
-function calculateDamage(dealer, receiver, attackZone, defendZones) {
-    console.log(`Calculating damage from ${dealer.name} to ${receiver.name}`);
-    console.log(`Attack zone: ${JSON.stringify(attackZone)}`);
-    console.log(`Defend zones: ${JSON.stringify(defendZones)}`);
-    const modifier = receiver.defense_modifiers.hasOwnProperty(attackZone) ? receiver.defense_modifiers[attackZone] : 1.0;
+function calculateAndPrintDamage(dealer, receiver, attackZones, defendZones) {
     let attackDamage = 0;
-    if (!defendZones.includes(attackZone)) {
-        attackDamage = dealer.damage * modifier;
-    }
-    console.log(`Damage dealt: ${attackDamage}`);
-    return Math.floor(attackDamage);
+    attackZones.forEach(attackZone => {
+        const modifier = receiver.defense_modifiers.hasOwnProperty(attackZone) ? receiver.defense_modifiers[attackZone] : 1.0;
+        let isCriticalHit = isCritical();
+        if (!defendZones.includes(attackZone)) {
+            const hitDamage = Math.floor(dealer.damage * modifier * (isCriticalHit ? dealer.critical_multiplier : 1));
+            attackDamage += hitDamage;
+            writeFightLog(`<span class="highlight">${dealer.name}</span> ${isCriticalHit ? 'lands a <span class="highlight">critical hit</span>' : "attacks"} in the <span class="highlight">${attackZone}</span> for <span class="highlight">${hitDamage}</span>`);
+        } else {
+            writeFightLog(`<span class="highlight">${dealer.name}</span> ${isCriticalHit ? 'lands a <span class="highlight">critical hit</span>' : "attacks"} in the <span class="highlight">${attackZone}</span>, but <span class="highlight">${receiver.name}</span> blocks.`);
+        }
+    });
+
+    return attackDamage;
 }
 
 function updateHealth() {
-    if (currentFightData.selectedFighter.health < 0) currentFightData.selectedFighter.health = 0;
-    if (currentFightData.opponentFighter.health < 0) currentFightData.opponentFighter.health = 0;
-    fighterLeft.querySelector(".health-bar").value = currentFightData.selectedFighter.health;
-    fighterLeft.querySelector(".health-text").innerHTML = `<p class="health"><span class="red fa-solid fa-heart"></span> ${currentFightData.selectedFighter.health}</p>`;
-    fighterRight.querySelector(".health-bar").value = currentFightData.opponentFighter.health;
-    fighterRight.querySelector(".health-text").innerHTML = `<p class="health"><span class="red fa-solid fa-heart"></span> ${currentFightData.opponentFighter.health}</p>`;
+    if (currentFightData.playerHealth < 0) currentFightData.playerHealth = 0;
+    if (currentFightData.enemyHealth < 0) currentFightData.enemyHealth = 0;
+    fighterLeft.querySelector(".health-bar").value = currentFightData.playerHealth;
+    fighterLeft.querySelector(".health-text").innerHTML = `<p class="health"><span class="red fa-solid fa-heart"></span> ${currentFightData.playerHealth}</p>`;
+    fighterRight.querySelector(".health-bar").value = currentFightData.enemyHealth;
+    fighterRight.querySelector(".health-text").innerHTML = `<p class="health"><span class="red fa-solid fa-heart"></span> ${currentFightData.enemyHealth}</p>`;
 }
 
 function writeFightLog(message) {
     const logEntry = document.createElement("div");
+    userData.currentFight.fightLog.push(message);
     logEntry.classList.add("fight-log-entry");
-    logEntry.textContent = message;
+    logEntry.innerHTML = `<p>${message}</p>`;
     fightLog.appendChild(logEntry);
     fightLog.scrollTop = fightLog.scrollHeight;
 }
@@ -298,6 +596,7 @@ function writeFightLog(message) {
 function resetTurn() {
     attackZones.forEach(zone => {
         zone.checked = false;
+        zone.disabled = false;
     });
     defendZones.forEach(zone => {
         zone.checked = false;
@@ -306,7 +605,7 @@ function resetTurn() {
     attackButton.disabled = true;
 }
 
-function finishRound() {
+function endFight(winner) {
     attackButton.disabled = true;
     defendZones.forEach(zone => {
         zone.disabled = true;
@@ -314,6 +613,24 @@ function finishRound() {
     attackZones.forEach(zone => {
         zone.disabled = true;
     });
+    if (winner) {
+        if (winner === currentFightData.selectedFighter) {
+            characters[currentFightData.selectedFighter.id].wins++;
+            userData.characterWins[currentFightData.selectedFighter.id]++;
+            userData.enemyCounter++;
+            userData.wins++;
+        } else {
+            characters[currentFightData.selectedFighter.id].losses++;
+            userData.characterLosses[currentFightData.selectedFighter.id]++;
+        }
+    }
+    userData.fights++;
+    userData.currentFight.fightLog = [];
+
+    setTimeout(() => {
+        showScreen(chooseScreen);
+        fightLog.innerHTML = "";
+    }, 2000);
 }
 
 function fightTurn() {
@@ -321,51 +638,41 @@ function fightTurn() {
     const selectedDefendZones = Array.from(defendZones).filter(zone => zone.checked);
     const attackZoneName = selectedAttackZone ? selectedAttackZone.value : null;
     const defendZoneNames = selectedDefendZones.map(zone => zone.value);
-    console.log("defendZoneNames:", defendZoneNames);
     const enemyAction = enemyTurn();
-    const damageDealt = calculateDamage(
+    const damageDealt = calculateAndPrintDamage(
         currentFightData.selectedFighter,
         currentFightData.opponentFighter,
-        attackZoneName,
+        [attackZoneName],
         enemyAction.defend
     );
 
-    const damageReceived = calculateDamage(
+    const damageReceived = calculateAndPrintDamage(
         currentFightData.opponentFighter,
         currentFightData.selectedFighter,
         enemyAction.attack,
         defendZoneNames
     );
 
-    if (damageDealt === 0) {
-        writeFightLog(`${currentFightData.selectedFighter.name} attack in the ${attackZoneName}, but ${currentFightData.opponentFighter.name} blocks.`);
-    } else {
-        writeFightLog(`${currentFightData.selectedFighter.name} attacks in the ${attackZoneName} for ${damageDealt}`);
-    }
-
-    if (damageReceived === 0) {
-        writeFightLog(`${currentFightData.opponentFighter.name} attacks in the ${enemyAction.attack}, but ${currentFightData.selectedFighter.name} blocks`);
-    } else {
-        writeFightLog(`${currentFightData.opponentFighter.name} attacks in the ${enemyAction.attack} for ${damageReceived}`);
-    }
-    currentFightData.selectedFighter.health -= isNaN(damageReceived) ? 0 : damageReceived;
-    currentFightData.opponentFighter.health -= isNaN(damageDealt) ? 0 : damageDealt;
+    currentFightData.playerHealth -= isNaN(damageReceived) ? 0 : damageReceived;
+    currentFightData.enemyHealth -= isNaN(damageDealt) ? 0 : damageDealt;
 
     updateHealth();
+    resetTurn();
 
-    if (currentFightData.selectedFighter.health === 0 && currentFightData.opponentFighter.health === 0) {
+    if (currentFightData.playerHealth === 0 && currentFightData.enemyHealth === 0) {
         writeFightLog("It's a draw");
-        finishRound();
-    } else if (currentFightData.selectedFighter.health === 0) {
-        writeFightLog(`${currentFightData.opponentFighter.name} wins. Game Over.`);
-        finishRound();
-    } else if (currentFightData.opponentFighter.health === 0) {
-        writeFightLog(`${currentFightData.selectedFighter.name} wins. Congrats!`);
-        finishRound();
+        endFight();
+    } else if (currentFightData.playerHealth === 0) {
+        writeFightLog(`<span class="red">${currentFightData.opponentFighter.name}</span> wins. Game Over.`);
+        endFight(currentFightData.opponentFighter);
+    } else if (currentFightData.enemyHealth === 0) {
+        writeFightLog(`<span class="green">${currentFightData.selectedFighter.name}</span> wins. Congrats!`);
+        endFight(currentFightData.selectedFighter);
     }
+    syncFightToUserData();
+    updateUserData();
 }
 
 attackButton.addEventListener("click", () => {
     fightTurn();
-    resetTurn();
 });

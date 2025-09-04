@@ -13,39 +13,34 @@
 <body>
     <header>
         <h1 id="logo">Not a Fight Club</h1>
-        <ul id="nav">
+        <ul id="nav" class="hidden">
             <li>
-                <a href="#game" class="nav-button fa-solid fa-house"></a>
+                <button class="nav-button current fa-solid fa-house" id="home-button" aria-label="Home"></button>
             </li>
             <li>
-                <a href="#profile" class="nav-button fa-solid fa-user"></a>
+                <button class="nav-button fa-solid fa-user" id="profile-button" aria-label="Profile"></button>
             </li>
             <li>
-                <a href="#stats" class="nav-button fa-solid fa-chart-line"></a>
+                <button class="nav-button fa-solid fa-chart-line" id="stats-button" aria-label="Statistics"></button>
             </li>
         </ul>
     </header>
     <main>
         <div id="main-screen" class="screen">
-            <button id="game-button" class="main-button">Start Game</button>
+            <input type="text" id="player-name" placeholder="Enter your name" maxlength="20">
+            <button id="game-button" class="main-button" disabled>Start Game</button>
             <div class="bg-img left"></div>
             <div class="bg-img right"></div>
+            <footer class="">
+                <p id="copyright">&copy; Created by Egor Artemov just for fun</p>
+            </footer>
         </div>
         <div id="choose-screen" class="screen hidden">
             <h2 class="screen-title">Choose your fighter</h2>
             <div id="left-arrow" class="control-button fa-solid fa-arrow-left"></div>
             <div id="right-arrow" class="control-button fa-solid fa-arrow-right"></div>
             <div id="fighters">
-                <div class="fighter" id="serega">
-                    <div class="fighter-stats"></div>
-                    <img src="images/character-serega.svg" alt="Serega" class="fighter-image">
-                    <div class="name-and-health">
-                        <div class="fighter-name">Serega</div>
-                        <div class="fighter-health"></div>
-                    </div>
-                    <div class="fighter-description">You can call him a drunk master if he'll give you an option to speak.</div>
-                </div>
-                <div class="fighter" id="bruhas">
+                <div class="fighter secret" id="bruhas">
                     <div class="fighter-stats"></div>
                     <img src="images/character-bruhas.svg" alt="Bruhas" class="fighter-image">
                     <div class="name-and-health">
@@ -54,7 +49,16 @@
                     </div>
                     <div class="fighter-description">Infernal creature with a penchant for chaos and destruction looking like a family of angry monkeys.</div>
                 </div>
-                <div class="fighter" id="giva">
+                <div class="fighter secret" id="serega">
+                    <div class="fighter-stats"></div>
+                    <img src="images/character-serega.svg" alt="Serega" class="fighter-image">
+                    <div class="name-and-health">
+                        <div class="fighter-name">Serega</div>
+                        <div class="fighter-health"></div>
+                    </div>
+                    <div class="fighter-description">You can call him a drunk master if he'll give you an option to speak.</div>
+                </div>
+                <div class="fighter current" id="giva">
                     <div class="fighter-stats"></div>
                     <img src="images/character-giva.svg" alt="Giva" class="fighter-image">
                     <div class="name-and-health">
@@ -94,6 +98,18 @@
                 </div>
             </div>
             <button id="choose-button" class="main-button">Choose!</button>
+            <dialog class="secret-fighter-notice" id="serega-notice">
+                <form method="dialog">
+                    <p>Serega will be available after you finish 3 fights</p>
+                    <button id="close-modal">Thanks!</button>
+                </form>
+            </dialog>
+            <dialog class="secret-fighter-notice" id="bruhas-notice">
+                <form method="dialog">
+                    <p>Bruhas will be available after you win 5 fights</p>
+                    <button id="close-modal">Thanks!</button>
+                </form>
+            </dialog>
         </div>
         <div id="game-screen" class="screen hidden">
             <div id="game-area">
@@ -121,15 +137,15 @@
                             <p class="fight-instructions">2 zones to defend</p>
                         </fieldset>
                         <fieldset id="attack-zones">
-                            <input type="radio" id="attack-head" name="attack" value="head">
+                            <input type="checkbox" id="attack-head" name="attack" value="head">
                             <label for="attack-head">Head</label>
-                            <input type="radio" id="attack-body" name="attack" value="body">
+                            <input type="checkbox" id="attack-body" name="attack" value="body">
                             <label for="attack-body">Body</label>
-                            <input type="radio" id="attack-neck" name="attack" value="neck">
+                            <input type="checkbox" id="attack-neck" name="attack" value="neck">
                             <label for="attack-neck">Neck</label>
-                            <input type="radio" id="attack-stomach" name="attack" value="stomach">
+                            <input type="checkbox" id="attack-stomach" name="attack" value="stomach">
                             <label for="attack-stomach">Stomach</label>
-                            <input type="radio" id="attack-legs" name="attack" value="legs">
+                            <input type="checkbox" id="attack-legs" name="attack" value="legs">
                             <label for="attack-legs">Legs</label>
                             <p class="fight-instructions">1 zone to attack</p>
                         </fieldset>
@@ -147,10 +163,20 @@
                 </div>
             </div>
         </div>
+        <div id="profile-screen" class="screen hidden">
+            <h2 class="screen-title">Profile</h2>
+            <input type="text" id="change-player-name" placeholder="Change your name" maxlength="20">
+            <button id="save-profile" class="main-button">Save</button>
+        </div>
+        <div id="stats-screen" class="screen hidden">
+            <h2 class="screen-title">Statistics</h2>
+            <div id="stats-content">
+                <p>Total Games Played: </p><span id="total-games">0</span>
+                <p>Total Wins: </p><span class="green" id="total-wins">0</span>
+                <p>Total Losses: </p><span class="red" id="total-losses">0</span>
+                <p>Win Rate: </p><span id="win-rate">0%</span>
+            </div>
     </main>
-    <footer class="">
-        <p id="copyright">&copy; Created by Egor Artemov just for fun</p>
-    </footer>
     <script src="script.js"></script>
 </body>
 </html>
