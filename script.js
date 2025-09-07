@@ -212,7 +212,8 @@ const currentFightData = {
     enemyHealth: 0
 };
 
-/* The user's data is stored in localStorage */
+// The user's data is stored in localStorage
+
 const userData = JSON.parse(localStorage.getItem("userData")) || {
     name: "",
     enemyCounter: 0,
@@ -276,7 +277,7 @@ function renderFightersOnChooseScreen() {
         if (userData.fights < 2 && [...secretFighters].some(f => f === fighterElem)) {
             imgSrc = "images/character-secret.svg";
             isSecret = true;
-        } else if (userData.fights > 2 && userData.wins < 5 && fighterId === "bruhas") {
+        } else if (userData.fights >= 2 && userData.wins < 5 && fighterId === "bruhas") {
             imgSrc = "images/character-secret.svg";
             isSecret = true;
         }
@@ -291,15 +292,13 @@ function renderFightersOnChooseScreen() {
     });
 }
 
-/*
-    * Handling the carousel on the choose screen
-*/
+// Handling the carousel on the choose screen
 
 function scrollSlider(direction) {
-    const currentlySelectedFighter = document.querySelector(".fighter.current");
+    const currentlySelectedFighter = document.querySelector(".fighter.selected");
     const fighters = document.querySelectorAll("#choose-screen .fighter");
 
-    currentlySelectedFighter.classList.remove("current");
+    currentlySelectedFighter.classList.remove("selected");
     const nextFighter = direction === 'left'
         ? currentlySelectedFighter.previousElementSibling || currentlySelectedFighter
         : currentlySelectedFighter.nextElementSibling || currentlySelectedFighter;
@@ -309,7 +308,8 @@ function scrollSlider(direction) {
     } else if (direction === 'right') {
         fightersContainer.append(fighters[0]);
     }
-    nextFighter.classList.add("current");
+
+    nextFighter.classList.add("selected");
     
     const seregaNotice = document.querySelector("#serega-notice");
     const bruhasNotice = document.querySelector("#bruhas-notice");
@@ -438,6 +438,10 @@ rightArrow.addEventListener("click", () => scrollSlider('right'));
 
 // Fight logic
 
+/*
+    * Upload the current fight to the user data
+    * Load the fight data from the user data
+*/
 function syncFightToUserData() {
     userData.currentFight.selectedFighterId = currentFightData.selectedFighter?.id || null;
     userData.currentFight.opponentFighterId = currentFightData.opponentFighter?.id || null;
@@ -447,6 +451,7 @@ function syncFightToUserData() {
 
 function loadFightData() {
     if (!userData.currentFight.selectedFighterId || !userData.currentFight.opponentFighterId) {
+        showScreen(chooseScreen);
         return;
     }
 
@@ -473,9 +478,11 @@ function loadFightData() {
     updateHealth();
 }
 
+// Initialize the fight screen after choosing the fighter
+
 chooseButton.addEventListener("click", () => {
     showScreen(gameScreen);
-    currentFightData.selectedFighter = characters[document.querySelector(".fighter:nth-child(3)").id];
+    currentFightData.selectedFighter = characters[document.querySelector(".fighter.selected").id];
     currentFightData.playerHealth = characters[currentFightData.selectedFighter.id].health;
     fighterLeft.querySelector(".fighter-image").src = `images/character-${currentFightData.selectedFighter.id}.svg`;
     fighterLeft.querySelector(".fighter-name").innerText = `${userData.name} — ${currentFightData.selectedFighter.name}`;
@@ -493,6 +500,8 @@ chooseButton.addEventListener("click", () => {
     updateUserData();
     resetTurn();
 });
+
+// Handling attack and defend zones selection
 
 defendZones.forEach(zone => {
     zone.addEventListener("change", () => {
@@ -524,6 +533,8 @@ attackZones.forEach(zone => {
     });
 });
 
+// Disabling the Attack button when not enough zones are selected
+
 actionsSelector.addEventListener("change", () => {
     attackButton.disabled = !Array.from(attackZones).some(zone => zone.checked) || Array.from(defendZones).filter(zone => zone.checked).length !== 2;
 });
@@ -531,6 +542,8 @@ actionsSelector.addEventListener("change", () => {
 function isCritical() {
     return Math.random() < 0.05; // 5% chance for a critical hit
 }
+
+// Choosing emeny attack and defence zones
 
 function enemyTurn() {
     const attacksPerRound = currentFightData.opponentFighter.attacks_per_round;
@@ -544,6 +557,7 @@ function enemyTurn() {
         } while (attackZones.includes(attackZone));
         attackZones.push(attackZone);
     }
+
     const defendZones = [];
     for (let i = 0; i < defensesPerRound; i++) {
         let defendZone;
@@ -552,17 +566,21 @@ function enemyTurn() {
         } while (defendZones.includes(defendZone));
         defendZones.push(defendZone);
     }
+
     return {
         attack: attackZones,
         defend: defendZones
     };
 }
 
+// Calculating damage dealt
+
 function calculateAndPrintDamage(dealer, receiver, attackZones, defendZones) {
     let attackDamage = 0;
     attackZones.forEach(attackZone => {
         const modifier = receiver.defense_modifiers.hasOwnProperty(attackZone) ? receiver.defense_modifiers[attackZone] : 1.0;
         let isCriticalHit = isCritical();
+
         if (!defendZones.includes(attackZone)) {
             const hitDamage = Math.floor(dealer.damage * modifier * (isCriticalHit ? dealer.critical_multiplier : 1));
             attackDamage += hitDamage;
@@ -575,6 +593,8 @@ function calculateAndPrintDamage(dealer, receiver, attackZones, defendZones) {
     return attackDamage;
 }
 
+// Updating health on the screen
+
 function updateHealth() {
     if (currentFightData.playerHealth < 0) currentFightData.playerHealth = 0;
     if (currentFightData.enemyHealth < 0) currentFightData.enemyHealth = 0;
@@ -583,6 +603,8 @@ function updateHealth() {
     fighterRight.querySelector(".health-bar").value = currentFightData.enemyHealth;
     fighterRight.querySelector(".health-text").innerHTML = `<p class="health"><span class="red fa-solid fa-heart"></span> ${currentFightData.enemyHealth}</p>`;
 }
+
+// Writing the message to the fight log
 
 function writeFightLog(message) {
     const logEntry = document.createElement("div");
@@ -593,56 +615,39 @@ function writeFightLog(message) {
     fightLog.scrollTop = fightLog.scrollHeight;
 }
 
+// Resetting the checkboxes when the turn ends
+
 function resetTurn() {
     attackZones.forEach(zone => {
         zone.checked = false;
         zone.disabled = false;
     });
+
     defendZones.forEach(zone => {
         zone.checked = false;
         zone.disabled = false;
     });
+
     attackButton.disabled = true;
 }
 
-function endFight(winner) {
-    attackButton.disabled = true;
-    defendZones.forEach(zone => {
-        zone.disabled = true;
-    });
-    attackZones.forEach(zone => {
-        zone.disabled = true;
-    });
-    if (winner) {
-        if (winner === currentFightData.selectedFighter) {
-            characters[currentFightData.selectedFighter.id].wins++;
-            userData.characterWins[currentFightData.selectedFighter.id]++;
-            userData.enemyCounter++;
-            userData.wins++;
-        } else {
-            characters[currentFightData.selectedFighter.id].losses++;
-            userData.characterLosses[currentFightData.selectedFighter.id]++;
-        }
-    }
-    userData.fights++;
-    userData.currentFight.fightLog = [];
-
-    setTimeout(() => {
-        showScreen(chooseScreen);
-        fightLog.innerHTML = "";
-    }, 2000);
-}
+/*
+    Handling 
+*/
 
 function fightTurn() {
-    const selectedAttackZone = Array.from(attackZones).find(zone => zone.checked);
-    const selectedDefendZones = Array.from(defendZones).filter(zone => zone.checked);
-    const attackZoneName = selectedAttackZone ? selectedAttackZone.value : null;
-    const defendZoneNames = selectedDefendZones.map(zone => zone.value);
+    const attackZone = Array.from(attackZones).find(zone => zone.checked);
+    const defendZonesSelected = Array.from(defendZones).filter(zone => zone.checked);
+
+    const playerAttackZones = attackZone ? [attackZone.value] : [];
+    const playerDefendZones = defendZonesSelected.map(zone => zone.value);
+
     const enemyAction = enemyTurn();
+
     const damageDealt = calculateAndPrintDamage(
         currentFightData.selectedFighter,
         currentFightData.opponentFighter,
-        [attackZoneName],
+        playerAttackZones,
         enemyAction.defend
     );
 
@@ -650,27 +655,80 @@ function fightTurn() {
         currentFightData.opponentFighter,
         currentFightData.selectedFighter,
         enemyAction.attack,
-        defendZoneNames
+        playerDefendZones
     );
 
-    currentFightData.playerHealth -= isNaN(damageReceived) ? 0 : damageReceived;
-    currentFightData.enemyHealth -= isNaN(damageDealt) ? 0 : damageDealt;
-
+    applyDamage(damageDealt, damageReceived);
     updateHealth();
     resetTurn();
-
-    if (currentFightData.playerHealth === 0 && currentFightData.enemyHealth === 0) {
-        writeFightLog("It's a draw");
-        endFight();
-    } else if (currentFightData.playerHealth === 0) {
-        writeFightLog(`<span class="red">${currentFightData.opponentFighter.name}</span> wins. Game Over.`);
-        endFight(currentFightData.opponentFighter);
-    } else if (currentFightData.enemyHealth === 0) {
-        writeFightLog(`<span class="green">${currentFightData.selectedFighter.name}</span> wins. Congrats!`);
-        endFight(currentFightData.selectedFighter);
-    }
+    checkFightOutcome();
     syncFightToUserData();
     updateUserData();
+}
+
+function applyDamage(damageDealt, damageReceived) {
+    currentFightData.playerHealth -= damageReceived || 0;
+    currentFightData.enemyHealth -= damageDealt || 0;
+}
+
+function checkFightOutcome() {
+    const { playerHealth, enemyHealth, selectedFighter, opponentFighter } = currentFightData;
+
+    if (playerHealth <= 0 && enemyHealth <= 0) {
+        writeFightLog("It's a draw");
+        endFight();
+    } else if (playerHealth <= 0) {
+        writeFightLog(`<span class="red">${opponentFighter.name}</span> wins. Game Over.`);
+        endFight(opponentFighter);
+    } else if (enemyHealth <= 0) {
+        writeFightLog(`<span class="green">${selectedFighter.name}</span> wins. Congrats!`);
+        endFight(selectedFighter);
+    }
+}
+
+
+/*
+    Handling the end of the fight:
+    - Disabling all action buttons
+    - Showing the fight result
+    - Updating user data
+    - Exiting the fight screen
+*/
+
+function endFight(winner) {
+    disableControls();
+
+    if (winner) {
+        const playerId = currentFightData.selectedFighter.id;
+        const isPlayerWinner = winner === currentFightData.selectedFighter;
+
+        if (isPlayerWinner) {
+            characters[playerId].wins++;
+            userData.characterWins[playerId]++;
+            userData.enemyCounter++;
+            userData.wins++;
+        } else {
+            characters[playerId].losses++;
+            userData.characterLosses[playerId]++;
+        }
+    }
+
+    userData.fights++;
+    resetFightLog();
+
+    setTimeout(() => {
+        showScreen(chooseScreen);
+        fightLog.innerHTML = "";
+    }, 2000);
+}
+
+function disableControls() {
+    attackButton.disabled = true;
+    [...defendZones, ...attackZones].forEach(zone => zone.disabled = true);
+}
+
+function resetFightLog() {
+    userData.currentFight.fightLog = [];
 }
 
 attackButton.addEventListener("click", () => {
