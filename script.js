@@ -5,10 +5,7 @@ const chooseScreen = document.getElementById("choose-screen");
 const leftArrow = document.getElementById("left-arrow");
 const rightArrow = document.getElementById("right-arrow");
 const fightersContainer = document.getElementById("fighters");
-const footer = document.querySelector("footer");
 const chooseButton = document.getElementById("choose-button");
-const fighterStats = document.querySelectorAll(".fighter-stats");
-const fighterHealth = document.querySelectorAll(".fighter-health");
 const fighterRight = document.getElementById("right-fighter");
 const fighterLeft = document.getElementById("left-fighter");
 const attackZones = document.querySelectorAll("#attack-zones input");
@@ -20,8 +17,6 @@ const playerNameInput = document.getElementById("player-name");
 const screens = document.querySelectorAll(".screen");
 const chooseFighters = document.querySelectorAll('#choose-screen .fighter');
 const secretFighters = document.querySelectorAll('#choose-screen .fighter.secret');
-const bruhas = document.getElementById("bruhas");
-const serega = document.getElementById("serega");
 const homeButton = document.getElementById("home-button");
 const profileButton = document.getElementById("profile-button");
 const statsButton = document.getElementById("stats-button");
@@ -429,7 +424,7 @@ saveProfileButton.addEventListener("click", () => {
     }
 });
 
-window.addEventListener("DOMContentLoaded", () => {
+globalThis.addEventListener("DOMContentLoaded", () => {
     showScreen(document.getElementById(userData.currentScreen));
 });
 
@@ -578,8 +573,8 @@ function enemyTurn() {
 function calculateAndPrintDamage(dealer, receiver, attackZones, defendZones) {
     let attackDamage = 0;
     attackZones.forEach(attackZone => {
-        const modifier = receiver.defense_modifiers.hasOwnProperty(attackZone) ? receiver.defense_modifiers[attackZone] : 1.0;
-        let isCriticalHit = isCritical();
+        const modifier = receiver.defense_modifiers?.[attackZone] ?? 1.0;
+        const isCriticalHit = isCritical();
 
         if (!defendZones.includes(attackZone)) {
             const hitDamage = Math.floor(dealer.damage * modifier * (isCriticalHit ? dealer.critical_multiplier : 1));
